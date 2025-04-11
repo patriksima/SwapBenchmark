@@ -1,12 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
+using SwapBenchmark;
 
-namespace SwapBenchmark
-{
-    public static class Program
-    {
-        public static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<Benchy>();
-        }
-    }
-}
+BenchmarkRunner.Run<Benchy>();

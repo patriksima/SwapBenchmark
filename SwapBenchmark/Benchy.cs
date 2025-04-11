@@ -1,70 +1,80 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
-namespace SwapBenchmark
+namespace SwapBenchmark;
+
+[MemoryDiagnoser]
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net90)]
+public class Benchy
 {
+    private int a, b;
 
-    [MemoryDiagnoser]
-    //[SimpleJob(RuntimeMoniker.Net50)]
-    [SimpleJob(RuntimeMoniker.Net60)]
-    [SimpleJob(RuntimeMoniker.Net70)]
-    public class Benchy
+    [GlobalSetup(Target = nameof(TupleSwapBenchmark))]
+    public void SetupTuple() => (a, b) = (1, 2);
+
+    [Benchmark]
+    public (int, int) TupleSwapBenchmark()
     {
-        public static int A = 1;
-        public static int B = 2;
-        public static int C = 1;
-        public static int D = 2;
+        TupleSwap(ref a, ref b);
+        return (a, b);
+    }
 
-        [Benchmark]
-        public void TupleSwapBenchmark()
-        {
-            TupleSwap(ref A, ref B);
-        }
+    [GlobalSetup(Target = nameof(TempSwapBenchmark))]
+    public void SetupTemp() => (a, b) = (1, 2);
 
-        [Benchmark]
-        public void TempSwapBenchmark()
-        {
-            TempSwap(ref C, ref D);
-        }
-/*
-        [Benchmark]
-        public void XorSwapBenchmark()
-        {
-            XorSwap(ref A, ref B);
-        }
+    [Benchmark]
+    public (int, int) TempSwapBenchmark()
+    {
+        TempSwap(ref a, ref b);
+        return (a, b);
+    }
 
-        [Benchmark]
-        public void ArithmeticSwapBenchmark()
-        {
-            ArithmeticSwap(ref A, ref B);
-        }*/
+    [GlobalSetup(Target = nameof(XorSwapBenchmark))]
+    public void SetupXor() => (a, b) = (1, 2);
 
-        private void TupleSwap(ref int x, ref int y)
-        {
-            (x, y) = (y, x);
-        }
+    [Benchmark]
+    public (int, int) XorSwapBenchmark()
+    {
+        XorSwap(ref a, ref b);
+        return (a, b);
+    }
 
-        private void TempSwap(ref int x, ref int y)
-        {
-            var t = x;
-            x = y;
-            y = x;
-        }
+    [GlobalSetup(Target = nameof(ArithmeticSwapBenchmark))]
+    public void SetupArithmetic() => (a, b) = (1, 2);
 
+    [Benchmark]
+    public (int, int) ArithmeticSwapBenchmark()
+    {
+        ArithmeticSwap(ref a, ref b);
+        return (a, b);
+    }
 
-        private void XorSwap(ref int x, ref int y)
-        {
-            x = x ^ y;
-            y = y ^ x;
-            x = x ^ y;
-        }
+    private void TupleSwap(ref int x, ref int y)
+    {
+        (x, y) = (y, x);
+    }
 
+    private void TempSwap(ref int x, ref int y)
+    {
+        var t = x;
+        x = y;
+        y = t;
+    }
 
-        private void ArithmeticSwap(ref int x, ref int y)
-        {
-            x = x + y;
-            y = x - y;
-            x = x - y;
-        }
+    private void XorSwap(ref int x, ref int y)
+    {
+        x = x ^ y;
+        y = y ^ x;
+        x = x ^ y;
+    }
+
+    private void ArithmeticSwap(ref int x, ref int y)
+    {
+        x = x + y;
+        y = x - y;
+        x = x - y;
     }
 }
